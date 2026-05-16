@@ -125,6 +125,48 @@ Use `stick` for bundled cursor/button state and `getkey` for explicit character 
 - For console examples, use `hsp3cl.exe` and `common/hsp3cl.as` where relevant.
 - For HSP3Dish, web, Android, or iOS topics, the Windows package also contains `hsp3js/`, `android/`, `iOS/`, and `dish_p_helper.exe`.
 
+## HSP Help Lookup
+
+Use packaged `hsphelp/*.hs` files as the local command reference when exact syntax, parameters, or key-code tables matter. Do not assume the path is stable. Prefer, in order:
+
+- A user-provided HSP package or OpenHSP path.
+- Nearby project/package directories containing `hsphelp/`.
+- Common local source/package layouts such as `OpenHSP/hsphelp`, `OpenHSP/tmp/hsp37/hsphelp`, or package-root `hsphelp`.
+
+Use tools that fit the user's environment. On Windows, do not assume Unix tools such as `find`, `file`, `iconv`, or `rg` are installed.
+
+PowerShell search pattern:
+
+```powershell
+Get-ChildItem -Path $root -Recurse -Filter *.hs |
+  Where-Object { $_.FullName -match '\\hsphelp\\' }
+```
+
+Unix-like shell pattern, when those tools are available:
+
+```sh
+find "$root" -path '*/hsphelp/*.hs' -print
+rg -n '^%index|^stick$|^getkey$' "$hsphelp_dir"
+```
+
+Portable decode pattern, when Python is available:
+
+```python
+from pathlib import Path
+
+data = Path(path_to_hs).read_bytes()
+for enc in ("utf-8", "cp932", "shift_jis"):
+    try:
+        text = data.decode(enc)
+        break
+    except UnicodeDecodeError:
+        pass
+else:
+    raise UnicodeDecodeError("hsphelp", data, 0, 1, "unknown encoding")
+```
+
+Encoding varies by source. OpenHSP repository files are often UTF-8, while Windows package-derived `hsphelp` files may be Shift_JIS/CP932. Try UTF-8 and CP932/Shift_JIS before trusting text output. Command names and `%index` markers are ASCII, so byte-oriented search can often locate entries before decoding; decode before quoting or relying on Japanese descriptions.
+
 ## Linux+OpenHSP Source Tree Notes
 
 - General samples live under `sample/`, with reference/preprocessed variants under `sample_ref/` and `sample_ref_pp/`.

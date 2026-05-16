@@ -10,9 +10,10 @@ description: Use when writing, editing, reviewing, debugging, or explaining Hot 
 1. Default to the official Windows HSP 3.7 package layout unless the user says they are working in Linux/OpenHSP source. Treat Windows users, HSP Script Editor (`hsed3.exe`), package-root `common/`, `sample/`, `doclib/`, `hsphelp/`, DLL plugins, and `runtime/*.hrt` as the normal target.
 2. Identify the target runtime before writing code: standard HSP3 windowed script, HSPCL console script, HSP3Dish/mobile/web style script, HGIMG4/3D script, module `.as`, or package/repository sample.
 3. Inspect nearby `.hsp`, `.as`, or `hsphelp/*.hs` files when working inside an existing project. Prefer established includes, command style, encoding, labels, and asset paths.
-4. Write small, direct HSP code. Keep command statements simple, avoid inventing C-like syntax, and preserve HSP idioms such as labels, `gosub`, `goto`, `repeat`/`loop`, `if` command forms, and implicit variable creation where appropriate.
-5. If the task touches nontrivial syntax, modules, preprocessing, arrays, strings, HSP3Dish, HGIMG4, external DLL calls, package layout, or OpenHSP tests, read `references/hsp-notes.md` before editing.
-6. Validate with the most local command available. For normal Windows usage, expect HSP Script Editor or package tools such as `hspcmp.exe`/runtime executables; for Linux+OpenHSP source work, use existing tests or build tools around the touched area. If runtime verification is not available, say so.
+4. When command details matter, look up `hsphelp/*.hs` from the user's HSP/OpenHSP installation instead of guessing. Do not assume a fixed install path or UTF-8; see `references/hsp-notes.md` for lookup and decoding hints.
+5. Write small, direct HSP code. Keep command statements simple, avoid inventing C-like syntax, and preserve HSP idioms such as labels, `gosub`, `goto`, `repeat`/`loop`, `if` command forms, and implicit variable creation where appropriate.
+6. If the task touches nontrivial syntax, modules, preprocessing, arrays, strings, HSP3Dish, HGIMG4, external DLL calls, package layout, or OpenHSP tests, read `references/hsp-notes.md` before editing.
+7. Validate with the most local command available. For normal Windows usage, expect HSP Script Editor or package tools such as `hspcmp.exe`/runtime executables; for Linux+OpenHSP source work, use existing tests or build tools around the touched area. If runtime verification is not available, say so.
 
 ## Code Style
 
