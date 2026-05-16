@@ -1,6 +1,6 @@
 ---
 name: hsp-script
-description: Write, edit, review, or explain Hot Soup Processor scripts for HSP3/OpenHSP. Use when Codex works on .hsp, .as, or HSP help/example code; creates HSP desktop, HSPCL, HSP3Dish, HGIMG4, module, or sample scripts; ports logic to or from HSP; debugs HSP syntax/runtime behavior; or needs Windows HSP package or OpenHSP repository conventions for HSP code.
+description: Use when writing, editing, reviewing, debugging, or explaining Hot Soup Processor scripts for HSP3/OpenHSP; working on .hsp, .as, HSP help/example code, HSP desktop, HSPCL, HSP3Dish, HGIMG4, module, or sample scripts; porting logic to or from HSP; or needing Windows HSP package or OpenHSP repository conventions.
 ---
 
 # HSP Script

@@ -17,11 +17,15 @@ The primary target is the official Windows HSP 3.7 package, which is likely the 
 
 ## Installation
 
-Clone this repository into your Codex skills directory:
+Clone this repository into any working directory, then symlink the repository's `skills/` directory into your Codex skills directory:
 
 ```bash
-git clone https://github.com/<user>/hsp-script.git ~/.codex/skills/hsp-script
+git clone https://github.com/<user>/hsp-script-skill.git ~/git/hsp-script-skill
+mkdir -p ~/.codex/skills
+ln -s ~/git/hsp-script-skill/skills ~/.codex/skills/hsp-skills
 ```
+
+If `~/.codex/skills/hsp-skills` already exists as a directly cloned repository directory, move it aside or remove it before creating the symlink.
 
 Restart Codex or reload skills if your environment requires it.
 
@@ -49,11 +53,11 @@ Create a touch input sample for OpenHSP sample/hsp3dish.
 
 ## Files
 
-- `SKILL.md`: Codex-facing skill instructions and trigger description.
-- `references/hsp-notes.md`: HSP syntax notes, examples, runtime guidance, and OpenHSP repository hints.
-- `agents/openai.yaml`: UI metadata for skill lists.
+- `skills/SKILL.md`: Codex-facing skill instructions and trigger description.
+- `skills/references/hsp-notes.md`: HSP syntax notes, examples, runtime guidance, and OpenHSP repository hints.
+- `skills/agents/openai.yaml`: UI metadata for skill lists.
 - `README.md`: Japanese README.
 
 ## Notes
 
-This repository is intended to be installed as a single skill folder. The repository root should contain `SKILL.md`.
+Codex should load the `skills/` directory, not the repository root. Do not place the repository itself directly at `~/.codex/skills/hsp-skills`; place a symlink there that points to `hsp-script-skill/skills`.
