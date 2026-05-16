@@ -1,11 +1,30 @@
 # HSP Notes
 
+## Target Environment
+
+Use the official Windows HSP 3.7 package as the main assumption for user-facing scripts. In that layout:
+
+- `hsed3.exe` / `hsed3_en.exe`: HSP Script Editor.
+- `hspcmp.exe`: compiler.
+- `hsp3.exe`, `hsp3_64.exe`, `hsp3utf.exe`: standard desktop runtimes.
+- `hsp3cl.exe`: console runtime.
+- `hsp3dish.exe`: HSP3Dish runtime.
+- `hsp3gp.exe`, `hsp3gpdx.exe`, `hsp3hg.exe`, `hsp3dh.exe`: game/graphics-related runtimes or helpers.
+- `runtime/*.hrt`: runtime definition files such as `hsp3cl.hrt`, `hsp3dish.hrt`, `hsp3gp.hrt`, and `hsp3_64.hrt`.
+- `common/`: standard include files and module headers, including Windows plugin headers such as `user32.as`, `kernel32.as`, `winmm.as`, `hspinet.as`, `hspext.as`, `hspcv.as`, and `hgimg4.as`.
+- `sample/`: user-facing samples grouped by feature, for example `basic`, `game`, `hspcl`, `hsp3dish`, `hgimg4`, `hgimg3`, `sprite`, `module`, `comobj`, `hspsock`, `hspinet`, `hspcv`, `hsp3utf`, `hspvoicevox`, `Artlet2D`, `SQLele`, `dotfw`, `d3module`, `gpmodule`, and `new37`.
+- `doclib/`: packaged documentation such as `hsp3.htm`, `hspprog.htm`, `hsp3win.html`, `hsp3dish*.htm`, `hsp3linux_pi.html`, plugin docs, and update/history notes.
+- `hsphelp/`: help source/index files used by the editor/help system.
+- DLLs in the package root provide Windows plugin functionality; include matching `.as` files from `common/` when using them.
+
+Mention Linux+OpenHSP as a source-tree/development variant, not the default end-user layout. In the OpenHSP repository, equivalent materials are split across `sample/`, `sample_ref/`, `sample_ref_pp/`, `common/`, `hsphelp/`, `hsphelp_en/`, `doclib/`, `doclib_en/`, `src/`, `test/`, and `build/`.
+
 ## Runtime Selection
 
 - Standard HSP3: windowed desktop scripts using commands such as `screen`, `mes`, `button`, `color`, `pos`, `line`, and `stick`.
 - HSPCL: console or command-line scripts; avoid GUI-only assumptions.
-- HSP3Dish: portable/mobile/web-oriented scripts; start from examples under `sample/hsp3dish` and include `hsp3dish.as` when needed.
-- HGIMG4: 3D/game scripts; start from examples under `sample/hgimg4` and include `hgimg4.as`.
+- HSP3Dish: portable/mobile/web-oriented scripts; start from examples under package-root `sample/hsp3dish` and include `hsp3dish.as` when needed.
+- HGIMG4: 3D/game scripts; start from examples under package-root `sample/hgimg4` and include `hgimg4.as`.
 - Module files: `.as` files commonly define reusable commands/functions with `#module`, `#deffunc`, `#defcfunc`, `#global`, and related preprocessor features.
 
 ## Syntax Reminders
@@ -79,9 +98,18 @@ return value
 #global
 ```
 
-## OpenHSP Repository Hints
+## Windows Package Hints
 
-- General samples live under `sample/`.
+- Prefer Windows package paths in user-facing explanations: `sample/basic`, `sample/hsp3dish`, `sample/hgimg4`, `common/hsp3dish.as`, `common/hgimg4.as`, and `doclib/hsp3.htm`.
+- For editor-oriented users, assume they run scripts from HSP Script Editor rather than from a Unix shell.
+- For plugin examples, check both the DLL in the package root and the matching header under `common/`.
+- For 64-bit or UTF-8 topics, distinguish `hsp3_64.exe`/`common/hsp3_64.as` and `hsp3utf.exe`/`common/hsp3utf.as`.
+- For console examples, use `hsp3cl.exe` and `common/hsp3cl.as` where relevant.
+- For HSP3Dish, web, Android, or iOS topics, the Windows package also contains `hsp3js/`, `android/`, `iOS/`, and `dish_p_helper.exe`.
+
+## Linux+OpenHSP Source Tree Notes
+
+- General samples live under `sample/`, with reference/preprocessed variants under `sample_ref/` and `sample_ref_pp/`.
 - Shared headers/modules live under `common/`.
 - Help source files live under `hsphelp/` and `hsphelp_en/`.
 - HSP3Dish and Emscripten assets also appear under `src/hspcmp/emscripten/assets/`.
@@ -89,7 +117,8 @@ return value
 
 ## Validation
 
-- Prefer an existing local test for the touched area. In OpenHSP, inspect nearby `test/` scripts or build/test commands before inventing a new validation path.
+- Prefer validation that matches the user's environment. For Windows package users, compile/run with HSP Script Editor or package tools such as `hspcmp.exe`, `hsp3.exe`, `hsp3cl.exe`, or `hsp3dish.exe` when available.
+- In Linux+OpenHSP source work, inspect nearby `test/` scripts or build/test commands before inventing a new validation path.
 - For syntax-only changes, compare against nearby examples using the same runtime and include files.
 - When no HSP runtime or build command is available, state that the script was reviewed statically only.
 
@@ -99,4 +128,4 @@ return value
 - Do not assume `cnt` keeps its value outside the loop where it is used.
 - Do not use GUI commands in HSPCL examples unless the user explicitly targets a GUI-capable runtime.
 - Do not use HSP3Dish/HGIMG4 commands without the expected include and initialization pattern.
-- Do not change sample asset paths casually; many examples rely on repository-relative layout.
+- Do not change sample asset paths casually; many examples rely on package-relative or repository-relative layout.

@@ -11,7 +11,9 @@ Codex skill for writing, editing, reviewing, and explaining Hot Soup Processor s
 - `.as` module files
 - OpenHSP sample, help, and test code
 
-This skill helps Codex keep HSP-specific style and conventions in mind, including labels, `repeat`/`loop`, `gosub`, command-style statements, HSP preprocessor directives, and OpenHSP repository layout conventions.
+This skill helps Codex keep HSP-specific style and conventions in mind, including labels, `repeat`/`loop`, `gosub`, command-style statements, HSP preprocessor directives, the Windows HSP package layout, and OpenHSP repository layout conventions.
+
+The primary target is the official Windows HSP 3.7 package, which is likely the most common user environment. The skill treats `hsed3.exe`, `hspcmp.exe`, `hsp3.exe`, `hsp3cl.exe`, `hsp3dish.exe`, `common/`, `sample/`, `doclib/`, and `hsphelp/` as the normal reference layout. Linux+OpenHSP source-tree usage is documented as a supplementary development and verification environment.
 
 ## Installation
 
