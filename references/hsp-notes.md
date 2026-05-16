@@ -10,7 +10,7 @@
 
 ## Syntax Reminders
 
-- Comments start with `;`.
+- Comments may use `;`, `//`, or `/* ... */`. Prefer `;` in new code unless nearby code uses another style.
 - Labels start with `*`, for example `*main`.
 - Assignment is commonly `name = value`. Commands are usually command-first, for example `mes "text"`.
 - `repeat n` starts a loop and `loop` ends it. `cnt` is the current repeat counter for the innermost loop.
@@ -82,7 +82,6 @@ return value
 ## OpenHSP Repository Hints
 
 - General samples live under `sample/`.
-- Reference/preprocessed samples often live under `sample_ref/` and `sample_ref_pp/`.
 - Shared headers/modules live under `common/`.
 - Help source files live under `hsphelp/` and `hsphelp_en/`.
 - HSP3Dish and Emscripten assets also appear under `src/hspcmp/emscripten/assets/`.
@@ -96,7 +95,7 @@ return value
 
 ## Common Mistakes To Avoid
 
-- Do not write JavaScript/C/Python syntax such as braces for blocks, `//` comments, `==` assignment, or `function` declarations.
+- Do not write JavaScript/C/Python syntax such as braces for blocks, `==` assignment, or `function` declarations. `//` and `/* ... */` are valid HSP comments, but they do not make other C-like syntax valid.
 - Do not assume `cnt` keeps its value outside the loop where it is used.
 - Do not use GUI commands in HSPCL examples unless the user explicitly targets a GUI-capable runtime.
 - Do not use HSP3Dish/HGIMG4 commands without the expected include and initialization pattern.

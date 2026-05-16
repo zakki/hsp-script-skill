@@ -16,7 +16,7 @@ description: Write, edit, review, or explain Hot Soup Processor scripts for HSP3
 ## Code Style
 
 - Use lowercase HSP commands and labels unless matching existing code.
-- Use `;` for comments. Keep comments short and practical.
+- Prefer `;` for comments in new HSP code unless nearby code uses another style. HSP also accepts `//` line comments and `/* ... */` block comments.
 - Put includes and preprocessor directives at the top, for example `#include "hsp3dish.as"` or `#module`.
 - Prefer clear ASCII identifiers for new code unless the surrounding script already uses Japanese identifiers.
 - Keep one main action per line. Avoid packing unrelated commands into colon-separated one-liners in new code.
