@@ -1,0 +1,4 @@
+interface:
+  display_name: "HSP Script"
+  short_description: "Write and review HSP3/OpenHSP scripts"
+  default_prompt: "Use $hsp-script to write a small HSP3 script."
