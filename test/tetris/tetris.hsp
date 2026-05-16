@@ -1,0 +1,396 @@
+#include "hsp3dish.as"
+
+#const SCREEN_W 480
+#const SCREEN_H 640
+#const BOARD_W 10
+#const BOARD_H 20
+#const CELL 24
+#const BOARD_X 72
+#const BOARD_Y 80
+
+screen 0, SCREEN_W, SCREEN_H
+title "HSP3Dish Tetris"
+randomize
+
+dim board, BOARD_W, BOARD_H
+dim shape, 7, 4, 4, 4
+dim pieceColor, 7, 3
+dim keyHeld, 256
+dim keyTrig, 256
+
+gameOver = 0
+pieceX = 0
+pieceY = 0
+pieceRot = 0
+pieceType = 0
+canPlace = 0
+dropDelay = 36
+k = 0
+keyDown = 0
+
+pieceColor(0, 0) = 0 : pieceColor(0, 1) = 220 : pieceColor(0, 2) = 230
+pieceColor(1, 0) = 40 : pieceColor(1, 1) = 90 : pieceColor(1, 2) = 230
+pieceColor(2, 0) = 235 : pieceColor(2, 1) = 150 : pieceColor(2, 2) = 35
+pieceColor(3, 0) = 240 : pieceColor(3, 1) = 215 : pieceColor(3, 2) = 35
+pieceColor(4, 0) = 70 : pieceColor(4, 1) = 200 : pieceColor(4, 2) = 85
+pieceColor(5, 0) = 160 : pieceColor(5, 1) = 75 : pieceColor(5, 2) = 210
+pieceColor(6, 0) = 225 : pieceColor(6, 1) = 65 : pieceColor(6, 2) = 70
+
+gosub *init_shapes
+gosub *reset_game
+
+*main
+gosub *read_input
+
+if gameOver = 0 {
+	if keyTrig('A') : testX = pieceX - 1 : testY = pieceY : testRot = pieceRot : testType = pieceType : gosub *can_place : if canPlace : pieceX = pieceX - 1
+	if keyTrig('D') : testX = pieceX + 1 : testY = pieceY : testRot = pieceRot : testType = pieceType : gosub *can_place : if canPlace : pieceX = pieceX + 1
+	if keyTrig('W') : testX = pieceX : testY = pieceY : testRot = (pieceRot + 1) \ 4 : testType = pieceType : gosub *can_place : if canPlace : pieceRot = testRot
+	if keyTrig('S') : dropTimer = dropDelay
+	if keyTrig(32) {
+		repeat
+			testX = pieceX
+			testY = pieceY + 1
+			testRot = pieceRot
+			testType = pieceType
+			gosub *can_place
+			if canPlace = 0 : break
+			pieceY = pieceY + 1
+			score = score + 1
+		loop
+		gosub *lock_piece
+	}
+
+	dropTimer = dropTimer + 1
+	if dropTimer >= dropDelay {
+		dropTimer = 0
+		testX = pieceX
+		testY = pieceY + 1
+		testRot = pieceRot
+		testType = pieceType
+		gosub *can_place
+		if canPlace {
+			pieceY = pieceY + 1
+		} else {
+			gosub *lock_piece
+		}
+	}
+} else {
+	if keyTrig('R') : gosub *reset_game
+}
+
+gosub *draw_game
+await 16
+goto *main
+
+*reset_game
+repeat BOARD_H
+	gy = cnt
+	repeat BOARD_W
+		gx = cnt
+		board(gx, gy) = 0
+	loop
+loop
+score = 0
+lines = 0
+level = 1
+dropDelay = 36
+dropTimer = 0
+gameOver = 0
+nextType = rnd(7)
+gosub *spawn_piece
+return
+
+*spawn_piece
+pieceType = nextType
+nextType = rnd(7)
+pieceRot = 0
+pieceX = 3
+pieceY = 0
+testX = pieceX
+testY = pieceY
+testRot = pieceRot
+testType = pieceType
+gosub *can_place
+if canPlace = 0 : gameOver = 1
+return
+
+*lock_piece
+repeat 4
+	sy = cnt
+	repeat 4
+		sx = cnt
+		if shape(pieceType, pieceRot, sx, sy) {
+			bx = pieceX + sx
+			by = pieceY + sy
+			if bx >= 0 & bx < BOARD_W & by >= 0 & by < BOARD_H : board(bx, by) = pieceType + 1
+		}
+	loop
+loop
+gosub *clear_lines
+gosub *spawn_piece
+return
+
+*clear_lines
+cleared = 0
+gy = BOARD_H - 1
+repeat BOARD_H
+	full = 1
+	repeat BOARD_W
+		gx = cnt
+		if board(gx, gy) = 0 : full = 0
+	loop
+
+	if full {
+		cleared = cleared + 1
+		yy = gy
+		repeat gy
+			srcY = yy - 1
+			repeat BOARD_W
+				gx = cnt
+				board(gx, yy) = board(gx, srcY)
+			loop
+			yy = yy - 1
+		loop
+		repeat BOARD_W
+			board(cnt, 0) = 0
+		loop
+		gy = gy + 1
+	}
+	gy = gy - 1
+loop
+
+if cleared {
+	lines = lines + cleared
+	score = score + (cleared * cleared * 100)
+	level = 1 + (lines / 10)
+	dropDelay = 36 - ((level - 1) * 3)
+	if dropDelay < 8 : dropDelay = 8
+}
+return
+
+*can_place
+canPlace = 1
+repeat 4
+	sy = cnt
+	repeat 4
+		sx = cnt
+		if shape(testType, testRot, sx, sy) {
+			bx = testX + sx
+			by = testY + sy
+			if bx < 0 {
+				canPlace = 0
+			}
+			if bx >= BOARD_W {
+				canPlace = 0
+			}
+			if by >= BOARD_H {
+				canPlace = 0
+			}
+			if bx >= 0 & bx < BOARD_W & by >= 0 & by < BOARD_H {
+				if board(bx, by) : canPlace = 0
+			}
+		}
+	loop
+loop
+return
+
+*read_input
+stick k, 15
+gosub *key_update
+return
+
+*key_update
+repeat 256
+	code = cnt
+	pressed = 0
+	if code = 'A' {
+		if k & 1 : pressed = 1
+		getkey keyDown, 'A'
+		if keyDown : pressed = 1
+	}
+	if code = 'D' {
+		if k & 4 : pressed = 1
+		getkey keyDown, 'D'
+		if keyDown : pressed = 1
+	}
+	if code = 'W' {
+		if k & 2 : pressed = 1
+		getkey keyDown, 'W'
+		if keyDown : pressed = 1
+	}
+	if code = 'S' {
+		if k & 8 : pressed = 1
+		getkey keyDown, 'S'
+		if keyDown : pressed = 1
+	}
+	if code = 32 : getkey pressed, 32
+	if code = 'R' : getkey pressed, 'R'
+	keyTrig(code) = 0
+	if pressed {
+		if keyHeld(code) = 0 : keyTrig(code) = 1
+		keyHeld(code) = 1
+	} else {
+		keyHeld(code) = 0
+	}
+loop
+return
+
+*draw_game
+redraw 0
+color 18, 20, 24
+boxf
+
+color 238, 238, 238
+font "Arial", 24
+pos 72, 28
+mes "HSP3Dish Tetris"
+
+gosub *draw_board
+gosub *draw_piece
+gosub *draw_side
+
+if gameOver {
+	color 0, 0, 0
+	boxf 96, 248, 384, 392
+	color 245, 245, 245
+	font "Arial", 28
+	pos 160, 280
+	mes "GAME OVER"
+	font "Arial", 18
+	pos 158, 326
+	mes "Press R to restart"
+}
+
+redraw 1
+return
+
+*draw_board
+color 38, 42, 48
+boxf BOARD_X - 6, BOARD_Y - 6, BOARD_X + BOARD_W * CELL + 5, BOARD_Y + BOARD_H * CELL + 5
+repeat BOARD_H
+	gy = cnt
+	repeat BOARD_W
+		gx = cnt
+		x = BOARD_X + gx * CELL
+		y = BOARD_Y + gy * CELL
+		color 26, 29, 34
+		boxf x + 1, y + 1, x + CELL - 2, y + CELL - 2
+		v = board(gx, gy)
+		if v {
+			c = v - 1
+			color pieceColor(c, 0), pieceColor(c, 1), pieceColor(c, 2)
+			boxf x + 2, y + 2, x + CELL - 3, y + CELL - 3
+			color 255, 255, 255
+			line x + 2, y + 2, x + CELL - 3, y + 2
+			line x + 2, y + 2, x + 2, y + CELL - 3
+		}
+	loop
+loop
+return
+
+*draw_piece
+repeat 4
+	sy = cnt
+	repeat 4
+		sx = cnt
+		if shape(pieceType, pieceRot, sx, sy) {
+			x = BOARD_X + (pieceX + sx) * CELL
+			y = BOARD_Y + (pieceY + sy) * CELL
+			color pieceColor(pieceType, 0), pieceColor(pieceType, 1), pieceColor(pieceType, 2)
+			boxf x + 2, y + 2, x + CELL - 3, y + CELL - 3
+			color 255, 255, 255
+			line x + 2, y + 2, x + CELL - 3, y + 2
+			line x + 2, y + 2, x + 2, y + CELL - 3
+		}
+	loop
+loop
+return
+
+*draw_side
+font "Arial", 18
+color 220, 224, 230
+pos 336, 90
+mes "Score"
+pos 336, 112
+mes "" + score
+pos 336, 152
+mes "Lines"
+pos 336, 174
+mes "" + lines
+pos 336, 214
+mes "Level"
+pos 336, 236
+mes "" + level
+pos 336, 292
+mes "Next"
+
+repeat 4
+	sy = cnt
+	repeat 4
+		sx = cnt
+		if shape(nextType, 0, sx, sy) {
+			x = 336 + sx * 20
+			y = 326 + sy * 20
+			color pieceColor(nextType, 0), pieceColor(nextType, 1), pieceColor(nextType, 2)
+			boxf x, y, x + 17, y + 17
+		}
+	loop
+loop
+
+font "Arial", 15
+color 170, 178, 188
+pos 336, 438
+mes "A/D move"
+pos 336, 462
+mes "W rotate"
+pos 336, 486
+mes "S drop"
+pos 336, 510
+mes "Space hard"
+return
+
+*init_shapes
+; I
+shape(0, 0, 0, 1) = 1 : shape(0, 0, 1, 1) = 1 : shape(0, 0, 2, 1) = 1 : shape(0, 0, 3, 1) = 1
+shape(0, 1, 2, 0) = 1 : shape(0, 1, 2, 1) = 1 : shape(0, 1, 2, 2) = 1 : shape(0, 1, 2, 3) = 1
+shape(0, 2, 0, 2) = 1 : shape(0, 2, 1, 2) = 1 : shape(0, 2, 2, 2) = 1 : shape(0, 2, 3, 2) = 1
+shape(0, 3, 1, 0) = 1 : shape(0, 3, 1, 1) = 1 : shape(0, 3, 1, 2) = 1 : shape(0, 3, 1, 3) = 1
+
+; J
+shape(1, 0, 0, 0) = 1 : shape(1, 0, 0, 1) = 1 : shape(1, 0, 1, 1) = 1 : shape(1, 0, 2, 1) = 1
+shape(1, 1, 1, 0) = 1 : shape(1, 1, 2, 0) = 1 : shape(1, 1, 1, 1) = 1 : shape(1, 1, 1, 2) = 1
+shape(1, 2, 0, 1) = 1 : shape(1, 2, 1, 1) = 1 : shape(1, 2, 2, 1) = 1 : shape(1, 2, 2, 2) = 1
+shape(1, 3, 1, 0) = 1 : shape(1, 3, 1, 1) = 1 : shape(1, 3, 0, 2) = 1 : shape(1, 3, 1, 2) = 1
+
+; L
+shape(2, 0, 2, 0) = 1 : shape(2, 0, 0, 1) = 1 : shape(2, 0, 1, 1) = 1 : shape(2, 0, 2, 1) = 1
+shape(2, 1, 1, 0) = 1 : shape(2, 1, 1, 1) = 1 : shape(2, 1, 1, 2) = 1 : shape(2, 1, 2, 2) = 1
+shape(2, 2, 0, 1) = 1 : shape(2, 2, 1, 1) = 1 : shape(2, 2, 2, 1) = 1 : shape(2, 2, 0, 2) = 1
+shape(2, 3, 0, 0) = 1 : shape(2, 3, 1, 0) = 1 : shape(2, 3, 1, 1) = 1 : shape(2, 3, 1, 2) = 1
+
+; O
+repeat 4
+	r = cnt
+	shape(3, r, 1, 0) = 1 : shape(3, r, 2, 0) = 1
+	shape(3, r, 1, 1) = 1 : shape(3, r, 2, 1) = 1
+loop
+
+; S
+shape(4, 0, 1, 0) = 1 : shape(4, 0, 2, 0) = 1 : shape(4, 0, 0, 1) = 1 : shape(4, 0, 1, 1) = 1
+shape(4, 1, 1, 0) = 1 : shape(4, 1, 1, 1) = 1 : shape(4, 1, 2, 1) = 1 : shape(4, 1, 2, 2) = 1
+shape(4, 2, 1, 1) = 1 : shape(4, 2, 2, 1) = 1 : shape(4, 2, 0, 2) = 1 : shape(4, 2, 1, 2) = 1
+shape(4, 3, 0, 0) = 1 : shape(4, 3, 0, 1) = 1 : shape(4, 3, 1, 1) = 1 : shape(4, 3, 1, 2) = 1
+
+; T
+shape(5, 0, 1, 0) = 1 : shape(5, 0, 0, 1) = 1 : shape(5, 0, 1, 1) = 1 : shape(5, 0, 2, 1) = 1
+shape(5, 1, 1, 0) = 1 : shape(5, 1, 1, 1) = 1 : shape(5, 1, 2, 1) = 1 : shape(5, 1, 1, 2) = 1
+shape(5, 2, 0, 1) = 1 : shape(5, 2, 1, 1) = 1 : shape(5, 2, 2, 1) = 1 : shape(5, 2, 1, 2) = 1
+shape(5, 3, 1, 0) = 1 : shape(5, 3, 0, 1) = 1 : shape(5, 3, 1, 1) = 1 : shape(5, 3, 1, 2) = 1
+
+; Z
+shape(6, 0, 0, 0) = 1 : shape(6, 0, 1, 0) = 1 : shape(6, 0, 1, 1) = 1 : shape(6, 0, 2, 1) = 1
+shape(6, 1, 2, 0) = 1 : shape(6, 1, 1, 1) = 1 : shape(6, 1, 2, 1) = 1 : shape(6, 1, 1, 2) = 1
+shape(6, 2, 0, 1) = 1 : shape(6, 2, 1, 1) = 1 : shape(6, 2, 1, 2) = 1 : shape(6, 2, 2, 2) = 1
+shape(6, 3, 1, 0) = 1 : shape(6, 3, 0, 1) = 1 : shape(6, 3, 1, 1) = 1 : shape(6, 3, 0, 2) = 1
+return

@@ -98,6 +98,24 @@ return value
 #global
 ```
 
+Keyboard input pattern for simple games:
+
+```hsp
+stick k, 15
+; stick bits: 1=left, 2=up, 4=right, 8=down, 16=space, 32=enter, 128=esc
+
+left = 0
+right = 0
+if k & 1 : left = 1
+if k & 4 : right = 1
+getkey wasd, 'A'
+if wasd : left = 1
+getkey wasd, 'D'
+if wasd : right = 1
+```
+
+Use `stick` for bundled cursor/button state and `getkey` for explicit character keys such as `A`, `D`, `W`, and `S`. The second `stick` parameter is a bitmask for keys that should keep reporting while held down.
+
 ## Windows Package Hints
 
 - Prefer Windows package paths in user-facing explanations: `sample/basic`, `sample/hsp3dish`, `sample/hgimg4`, `common/hsp3dish.as`, `common/hgimg4.as`, and `doclib/hsp3.htm`.
@@ -120,6 +138,8 @@ return value
 - Prefer validation that matches the user's environment. For Windows package users, compile/run with HSP Script Editor or package tools such as `hspcmp.exe`, `hsp3.exe`, `hsp3cl.exe`, or `hsp3dish.exe` when available.
 - In Linux+OpenHSP source work, inspect nearby `test/` scripts or build/test commands before inventing a new validation path.
 - For syntax-only changes, compare against nearby examples using the same runtime and include files.
+- For interactive programs, compile success is not enough: manually or programmatically check the main input paths, boundary actions, game-over/restart paths, and any array-index-heavy code.
+- Clean up compiler/runtime artifacts such as `.ax`, `obj`, or `hsptmp` unless the user asked to keep generated files.
 - When no HSP runtime or build command is available, state that the script was reviewed statically only.
 
 ## Common Mistakes To Avoid
@@ -129,3 +149,4 @@ return value
 - Do not use GUI commands in HSPCL examples unless the user explicitly targets a GUI-capable runtime.
 - Do not use HSP3Dish/HGIMG4 commands without the expected include and initialization pattern.
 - Do not change sample asset paths casually; many examples rely on package-relative or repository-relative layout.
+- Do not read arrays after only setting an error flag for out-of-range coordinates. For board/collision code, guard the actual array reference with a full bounds check such as `x >= 0 & x < width & y >= 0 & y < height`.
