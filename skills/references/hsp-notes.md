@@ -33,9 +33,10 @@ Mention Linux+OpenHSP as a source-tree/development variant, not the default end-
 - Labels start with `*`, for example `*main`.
 - Assignment is commonly `name = value`. Commands are usually command-first, for example `mes "text"`.
 - `repeat n` starts a loop and `loop` ends it. `cnt` is the current repeat counter for the innermost loop.
+- `wait p1` suspends execution for `p1 × 10 ms` and yields CPU time to other tasks; suited for passive UIs and accessories. `await p1` suspends for `p1 ms` measured from the previous `await` call, preventing frame-time drift at the cost of higher CPU use; suited for games and real-time animation. Include `wait` or `await` in any long-running loop to keep the window responsive.
 - `if condition : command` is common for short branches. `if condition { ... } else { ... }` is valid in HSP3/HSPCL, but braces do not make arbitrary C-like syntax valid.
 - `\` is the integer remainder operator, for example `n \ 3 = 0`.
-- `!` can be used as a not-equal comparison operator, for example `if i ! hitId { ... }`.
+- Comparison operators: `a=b` (equal), `a!b` (not equal), `a<b`, `a>b`, `a<=b`, `a>=b`. The C-style forms `==` and `!=` are also accepted and equivalent; neither form is preferred over the other.
 - `goto *label` jumps; `gosub *label` calls a subroutine that returns with `return`.
 - Use `stop` to stop a GUI script without closing immediately; use `end` when the program should terminate.
 - Preprocessor lines begin with `#`, such as `#include`, `#const`, `#define`, `#module`, `#deffunc`, and `#defcfunc`.
