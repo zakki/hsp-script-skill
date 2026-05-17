@@ -22,7 +22,7 @@ The primary target is the official Windows HSP 3.7 package, which is likely the 
 Clone this repository into any working directory, then symlink the repository's `skills/` directory into your Codex skills directory:
 
 ```bash
-git clone https://github.com/<user>/hsp-script-skill.git ~/git/hsp-script-skill
+git clone https://github.com/zakki/hsp-script-skill ~/git/hsp-script-skill
 mkdir -p ~/.codex/skills
 ln -s ~/git/hsp-script-skill/skills ~/.codex/skills/hsp-skills
 ```
@@ -36,7 +36,7 @@ Restart Codex or reload skills if your environment requires it.
 Clone this repository into any working directory, then symlink the repository's `skills/` directory into your Claude Code personal skills directory:
 
 ```bash
-git clone https://github.com/<user>/hsp-script-skill.git ~/git/hsp-script-skill
+git clone https://github.com/zakki/hsp-script-skill ~/git/hsp-script-skill
 mkdir -p ~/.claude/skills
 ln -s ~/git/hsp-script-skill/skills ~/.claude/skills/hsp-script
 ```
