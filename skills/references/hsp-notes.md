@@ -37,10 +37,52 @@ Mention Linux+OpenHSP as a source-tree/development variant, not the default end-
 - `if condition : command` is common for short branches. `if condition { ... } else { ... }` is valid in HSP3/HSPCL, but braces do not make arbitrary C-like syntax valid.
 - `\` is the integer remainder operator, for example `n \ 3 = 0`.
 - Comparison operators: `a=b` (equal), `a!b` (not equal), `a<b`, `a>b`, `a<=b`, `a>=b`. The C-style forms `==` and `!=` are also accepted and equivalent; neither form is preferred over the other.
+- A character literal such as `'A'` is interpreted as an integer character code (e.g., `'A'` = 65). Only the first byte is used for multi-byte or long strings. Use `'\''` for a single quote and `'\\'` for a backslash.
 - `goto *label` jumps; `gosub *label` calls a subroutine that returns with `return`.
 - Use `stop` to stop a GUI script without closing immediately; use `end` when the program should terminate.
 - Preprocessor lines begin with `#`, such as `#include`, `#const`, `#define`, `#module`, `#deffunc`, and `#defcfunc`.
 - `print` is an alias of `mes`; packaged help recommends `mes`. In HSPCL, `mes` prints to the console.
+
+## Type System and Mixed Expressions
+
+Variables hold one type at a time: integer (32-bit signed), real/double (64-bit), or string. The type is determined by the last assignment.
+
+**Mixed arithmetic — first operand wins:**
+
+When an expression mixes types, the **first operand's type** determines how all subsequent operands are interpreted:
+
+```hsp
+mes 8 + 4.5      ; → 12    (4.5 truncated to 4; first term is integer)
+mes 4.5 + 8      ; → 12.5  (8 promoted to 8.0; first term is real)
+```
+
+To force real arithmetic, write an explicit decimal point on the first operand: `8.0 + 4.5`. Scientific notation is also supported: `1.0e+10`.
+
+**String and number mixing with `+`:**
+
+The same first-operand rule applies when strings and numbers are combined with `+`:
+
+```hsp
+a = "score=" : mes a + 100       ; → "score=100"  (number converted to string)
+a = 100      : mes a + "5"       ; → 105          ("5" parsed as integer and added)
+
+a = "TEST " : b = 12345 : c = " MSG"
+mes a + b + c  ; → "TEST 12345 MSG"  (b and c both treated as strings because a is first)
+```
+
+**Explicit type conversion:**
+
+`int()`, `double()`, and `str()` force a type, preserving the value where possible:
+
+```hsp
+a = int("123")     ; → 123   (string to integer)
+b = double("3.14") ; → 3.14  (string to real)
+c = str(123)       ; → "123" (integer to string)
+```
+
+Uninitialized variables default to 0 (integer type).
+
+Passing a string-type variable where an integer is expected (or vice versa) causes a "Type mismatch" runtime error. Use explicit conversion to avoid this.
 
 ## User-Defined Commands and Functions
 
