@@ -35,8 +35,12 @@ Mention Linux+OpenHSP as a source-tree/development variant, not the default end-
 - `repeat n` starts a loop and `loop` ends it. `cnt` is the current repeat counter for the innermost loop.
 - `wait p1` suspends execution for `p1 × 10 ms` and yields CPU time to other tasks; suited for passive UIs and accessories. `await p1` suspends for `p1 ms` measured from the previous `await` call, preventing frame-time drift at the cost of higher CPU use; suited for games and real-time animation. Include `wait` or `await` in any long-running loop to keep the window responsive.
 - `if condition : command` is common for short branches. `if condition { ... } else { ... }` is valid in HSP3/HSPCL, but braces do not make arbitrary C-like syntax valid.
-- `\` is the integer remainder operator, for example `n \ 3 = 0`.
-- Comparison operators: `a=b` (equal), `a!b` (not equal), `a<b`, `a>b`, `a<=b`, `a>=b`. The C-style forms `==` and `!=` are also accepted and equivalent; neither form is preferred over the other.
+- Operators that often differ from JavaScript/C/Python:
+  - Assignment is `a = value`. Increment/decrement are `a+` and `a-`, equivalent to `a++` and `a--` in JavaScript/C.
+  - Remainder is `a \ b`, equivalent to `a % b` in JavaScript/C/Python.
+  - Equality can be written as `a = b` or `a == b`; not-equal can be written as `a ! b` or `a != b`.
+  - Logical/bitwise AND is `&`, and OR is `|`. These are integer operations, so `16 & 1` is `0`; do not treat them as boolean-only operators.
+  - There is no separate C-like `&&` / `||` operator in normal HSP conditions.
 - A character literal such as `'A'` is interpreted as an integer character code (e.g., `'A'` = 65). Only the first byte is used for multi-byte or long strings. Use `'\''` for a single quote and `'\\'` for a backslash.
 - `goto *label` jumps; `gosub *label` calls a subroutine that returns with `return`.
 - Use `stop` to stop a GUI script without closing immediately; use `end` when the program should terminate.
@@ -349,7 +353,7 @@ Encoding varies by source. OpenHSP repository files are often UTF-8, while Windo
 
 ## Common Mistakes To Avoid
 
-- Do not write JavaScript/C/Python syntax such as `==` assignment or `function` declarations. HSP accepts `if { ... }` blocks and C-style comments, but those features do not make HSP a C-like language.
+- Do not carry JavaScript/C/Python operator habits into HSP unchanged. Examples: use `a+`/`a-` for increment/decrement, `a \ b` for remainder, HSP command/module syntax instead of `function`, and separate `stick` bit tests from other boolean-looking conditions.
 - Do not assume `cnt` keeps its value outside the loop where it is used.
 - Do not use GUI-only commands in HSPCL examples unless the user explicitly targets a GUI-capable runtime; `mes`/`print` are aliases and can be used for console output under HSPCL.
 - Do not use HSP3Dish/HGIMG4 commands without the expected include and initialization pattern.

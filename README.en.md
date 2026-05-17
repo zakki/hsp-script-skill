@@ -11,7 +11,7 @@ Skill for writing, editing, reviewing, and explaining Hot Soup Processor scripts
 - `.as` module files
 - OpenHSP sample, help, and test code
 
-This skill helps Codex keep HSP-specific style and conventions in mind, including labels, `repeat`/`loop`, `gosub`, command-style statements, HSP preprocessor directives, the Windows HSP package layout, and OpenHSP repository layout conventions.
+This skill helps Codex and Claude Code keep HSP-specific style and conventions in mind, including labels, `repeat`/`loop`, `gosub`, command-style statements, HSP preprocessor directives, the Windows HSP package layout, and OpenHSP repository layout conventions.
 
 The primary target is the official Windows HSP 3.7 package, which is likely the most common user environment. The skill treats `hsed3.exe`, `hspcmp.exe`, `hsp3.exe`, `hsp3cl.exe`, `hsp3dish.exe`, `common/`, `sample/`, `doclib/`, and `hsphelp/` as the normal reference layout. Linux+OpenHSP source-tree usage is documented as a supplementary development and verification environment.
 
@@ -70,11 +70,11 @@ Create a touch input sample for OpenHSP sample/hsp3dish.
 ## Files
 
 - `AGENTS.md`: Development policy for agents updating this skill repository.
-- `skills/SKILL.md`: Codex-facing skill instructions and trigger description.
+- `skills/SKILL.md`: Skill instructions and trigger description.
 - `skills/references/hsp-notes.md`: HSP syntax notes, examples, runtime guidance, and OpenHSP repository hints.
 - `skills/agents/openai.yaml`: UI metadata for skill lists.
 - `README.md`: Japanese README.
 
 ## Notes
 
-Codex should load the `skills/` directory, not the repository root. Do not place the repository itself directly at `~/.codex/skills/hsp-skills`; place a symlink there that points to `hsp-script-skill/skills`.
+Both Codex and Claude Code should load the `skills/` directory, not the repository root. Point the symlink to `hsp-script-skill/skills/`, not to the repository root.
