@@ -1,6 +1,6 @@
 # hsp-script
 
-Codex skill for writing, editing, reviewing, and explaining Hot Soup Processor scripts for HSP3/OpenHSP.
+Skill for writing, editing, reviewing, and explaining Hot Soup Processor scripts for HSP3/OpenHSP. Works with both Codex and Claude Code.
 
 ## Scope
 
@@ -17,6 +17,8 @@ The primary target is the official Windows HSP 3.7 package, which is likely the 
 
 ## Installation
 
+### Codex
+
 Clone this repository into any working directory, then symlink the repository's `skills/` directory into your Codex skills directory:
 
 ```bash
@@ -28,6 +30,20 @@ ln -s ~/git/hsp-script-skill/skills ~/.codex/skills/hsp-skills
 If `~/.codex/skills/hsp-skills` already exists as a directly cloned repository directory, move it aside or remove it before creating the symlink.
 
 Restart Codex or reload skills if your environment requires it.
+
+### Claude Code
+
+Clone this repository into any working directory, then symlink the repository's `skills/` directory into your Claude Code personal skills directory:
+
+```bash
+git clone https://github.com/<user>/hsp-script-skill.git ~/git/hsp-script-skill
+mkdir -p ~/.claude/skills
+ln -s ~/git/hsp-script-skill/skills ~/.claude/skills/hsp-script
+```
+
+The skill is recognized as `~/.claude/skills/hsp-script/SKILL.md` and is available across all projects. To use on a per-project basis, symlink into the project-root `.claude/skills/` instead of `~/.claude/skills/`.
+
+Changes to `SKILL.md` are picked up live within the current session (no restart needed). A restart is only required when creating the symlink for the first time.
 
 ## Usage
 
