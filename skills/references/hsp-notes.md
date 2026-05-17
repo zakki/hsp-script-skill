@@ -33,10 +33,47 @@ Mention Linux+OpenHSP as a source-tree/development variant, not the default end-
 - Labels start with `*`, for example `*main`.
 - Assignment is commonly `name = value`. Commands are usually command-first, for example `mes "text"`.
 - `repeat n` starts a loop and `loop` ends it. `cnt` is the current repeat counter for the innermost loop.
-- `if condition : command` is common for short branches. For longer branches, follow existing project style and keep branch bodies easy to scan.
+- `if condition : command` is common for short branches. `if condition { ... } else { ... }` is valid in HSP3/HSPCL, but braces do not make arbitrary C-like syntax valid.
+- `\` is the integer remainder operator, for example `n \ 3 = 0`.
+- `!` can be used as a not-equal comparison operator, for example `if i ! hitId { ... }`.
 - `goto *label` jumps; `gosub *label` calls a subroutine that returns with `return`.
 - Use `stop` to stop a GUI script without closing immediately; use `end` when the program should terminate.
 - Preprocessor lines begin with `#`, such as `#include`, `#const`, `#define`, `#module`, `#deffunc`, and `#defcfunc`.
+- `print` is an alias of `mes`; packaged help recommends `mes`. In HSPCL, `mes` prints to the console.
+
+## User-Defined Commands and Functions
+
+`#deffunc` defines a command-like routine and returns with `return`. `#defcfunc` defines a function used in expressions and must return a value.
+
+```hsp
+#module
+
+#deffunc set_var var target, int value
+target = value
+return
+
+#deffunc set_array_first array target, int value
+target(0) = value
+return
+
+#defcfunc sum_array_first2 array target
+return target(0) + target(1)
+
+#defcfunc scratch_once int value, local scratch
+scratch = scratch + value
+return scratch
+
+#global
+```
+
+Parameter-type reminders:
+
+- `int`, `double`, and `str` receive values.
+- `var` receives the exact variable reference supplied by the caller. If called as `set_var values(1), 42`, assignment to `target` changes `values(1)`.
+- `array` receives the base array. If called as `set_array_first values(1), 99`, `target(0)` refers to `values(0)`, not `values(1)`.
+- `local` in a parameter list is not a caller argument. It declares a temporary variable initialized for each call and discarded on return. Put it at the end of the parameter list.
+- `#deffunc local name` and `#defcfunc local name` are different: this `local` makes the command/function name module-scoped. Call it as `name@module(...)`.
+- For module internals, variables often appear with module qualification such as `value@module`; follow nearby module style instead of guessing scope rules.
 
 ## Common Patterns
 
@@ -96,6 +133,19 @@ return
 return value
 
 #global
+```
+
+Module-scoped function name:
+
+```hsp
+#module private_scope
+
+#defcfunc local hidden_value
+return 321
+
+#global
+
+mes hidden_value@private_scope()
 ```
 
 Keyboard input pattern for simple games:
@@ -186,9 +236,9 @@ Encoding varies by source. OpenHSP repository files are often UTF-8, while Windo
 
 ## Common Mistakes To Avoid
 
-- Do not write JavaScript/C/Python syntax such as braces for blocks, `==` assignment, or `function` declarations. `//` and `/* ... */` are valid HSP comments, but they do not make other C-like syntax valid.
+- Do not write JavaScript/C/Python syntax such as `==` assignment or `function` declarations. HSP accepts `if { ... }` blocks and C-style comments, but those features do not make HSP a C-like language.
 - Do not assume `cnt` keeps its value outside the loop where it is used.
-- Do not use GUI commands in HSPCL examples unless the user explicitly targets a GUI-capable runtime.
+- Do not use GUI-only commands in HSPCL examples unless the user explicitly targets a GUI-capable runtime; `mes`/`print` are aliases and can be used for console output under HSPCL.
 - Do not use HSP3Dish/HGIMG4 commands without the expected include and initialization pattern.
 - Do not change sample asset paths casually; many examples rely on package-relative or repository-relative layout.
 - Do not read arrays after only setting an error flag for out-of-range coordinates. For board/collision code, guard the actual array reference with a full bounds check such as `x >= 0 & x < width & y >= 0 & y < height`.

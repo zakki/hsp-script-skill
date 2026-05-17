@@ -34,6 +34,7 @@ When reviewing or debugging HSP code, lead with concrete syntax/runtime risks, t
 - `repeat`/`loop` nesting and `cnt` scope.
 - `if` syntax and multi-command branches.
 - Array dimensions and implicit type changes.
+- `#deffunc`/`#defcfunc` parameter types, especially `var`, `array`, and `local`.
 - String concatenation, numeric conversion, and system variables.
 - Asset paths relative to the script, Windows HSP package layout, or OpenHSP sample layout.
 - Runtime-specific commands that do not exist in HSPCL, HSP3Dish, or HGIMG4.
