@@ -355,3 +355,18 @@ Encoding varies by source. OpenHSP repository files are often UTF-8, while Windo
 - Do not use HSP3Dish/HGIMG4 commands without the expected include and initialization pattern.
 - Do not change sample asset paths casually; many examples rely on package-relative or repository-relative layout.
 - Do not read arrays after only setting an error flag for out-of-range coordinates. For board/collision code, guard the actual array reference with a full bounds check such as `x >= 0 & x < width & y >= 0 & y < height`.
+- Do not combine a `stick` bit test with another condition using `&` in the same `if`. `key & 16` returns **16** (not 1) when the bit is set, so `(key & 16) & (shotcool = 0)` evaluates to `16 & 1 = 0` and is always false. Use nested `if` instead:
+
+  ```hsp
+  ; Wrong — bitwise AND of 16 and 1 is 0
+  if (key & 16) & (shotcool = 0) { ... }
+
+  ; Correct — nest the conditions
+  if key & 16 {
+      if shotcool = 0 {
+          ...
+      }
+  }
+  ```
+
+  The same trap applies to any `stick` bit that is not a power of 2 that matches the boolean result (1). Always test each bit flag separately with its own `if key & <bit>` guard.
