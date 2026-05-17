@@ -84,6 +84,74 @@ Uninitialized variables default to 0 (integer type).
 
 Passing a string-type variable where an integer is expected (or vice versa) causes a "Type mismatch" runtime error. Use explicit conversion to avoid this.
 
+## String Operations
+
+**Literals and escape sequences:**
+
+`\n` inside a double-quoted string produces CR+LF (codes 13, 10 — Windows line ending). Use `{"` … `"}` for a multi-line literal that preserves newlines as-is:
+
+```hsp
+a = {"
+line one
+line two
+"}
+```
+
+**String functions:**
+
+| Function / command | Purpose |
+|--------------------|---------|
+| `strlen(s)` | byte length of string (not character count) |
+| `strmid(s, pos, len)` | extract substring; pos is 0-based byte index; pos=-1 means from right |
+| `instr(s, pos, "key")` | search for "key" starting at byte pos; returns byte offset from pos, or -1 |
+| `strf(fmt, ...)` | sprintf-style formatted string (`"%d"`, `"%s"`, `"%.2f"`, …) |
+| `strrep s, "from", "to"` | replace all occurrences of "from" with "to" in s |
+| `strtrim s, mode, "chars"` | strip specified characters from s |
+| `split s, "delim", v0, v1, …` | split s by delimiter into variables |
+| `getstr dest, src, pos` | read null-terminated string from buffer at byte pos |
+| `getpath s, mode` | extract drive / directory / filename / extension part |
+| `cnvwtos s` | convert Unicode (UTF-16LE) buffer to Shift-JIS string |
+| `cnvstow s` | convert Shift-JIS string to Unicode buffer |
+
+`strmid` and `instr` count **bytes**, not characters. For Shift-JIS Japanese text one full-width character occupies 2 bytes, so splitting at a byte boundary can corrupt a character.
+
+**Pre-allocated string buffers:**
+
+`sdim var, size` initialises a string variable to an empty string and reserves `size` bytes. The last byte is always the null terminator, so `sdim a, 256` holds at most 255 characters. Use `sdim` before `bload` or any fixed-size buffer operation:
+
+```hsp
+sdim a, 32000
+bload "data.txt", a
+```
+
+**Byte-level access with `peek`/`poke`:**
+
+String variables are null-terminated byte buffers. `peek(var, index)` reads one byte (0-indexed); `poke var, index, value` writes one byte. Always keep the null terminator intact:
+
+```hsp
+a = "ABCDE"
+b = peek(a, 2)      ; b = 67 ('C')
+poke a, 3, 0        ; truncate to "ABC"
+```
+
+**Memory notepad commands** — for multi-line text stored in one variable:
+
+```hsp
+notesel a           ; target variable for notepad commands
+notemax             ; system var: number of lines
+notesize            ; system var: total byte size
+noteget b, n        ; read line n (0-based) into b (b becomes string type)
+noteadd "text", n   ; insert/overwrite line n
+notedel n           ; delete line n
+notefind "key", n   ; search from line n; returns line index or -1
+noteload "file.txt" ; load text file into target variable
+notesave "file.txt" ; save target variable to text file
+```
+
+**Japanese (Shift-JIS) caveats:**
+
+On the Windows HSP runtime, strings are Shift-JIS encoded. A full-width character uses 2 bytes; the lead byte is in the range 129–159 or 224–252. All built-in string functions (`strmid`, `instr`, `strlen`, `peek`, `poke`) work on bytes. Avoid splitting at odd byte positions when Japanese text may be present. Use `hsp3utf.exe` when UTF-8 is needed (Android, iOS, Linux, and HTML5 targets use UTF-8 by default).
+
 ## User-Defined Commands and Functions
 
 `#deffunc` defines a command-like routine and returns with `return`. `#defcfunc` defines a function used in expressions and must return a value.
