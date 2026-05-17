@@ -229,6 +229,8 @@ Encoding varies by source. OpenHSP repository files are often UTF-8, while Windo
 
 - Prefer validation that matches the user's environment. For Windows package users, compile/run with HSP Script Editor or package tools such as `hspcmp.exe`, `hsp3.exe`, `hsp3cl.exe`, or `hsp3dish.exe` when available.
 - In Linux+OpenHSP source work, inspect nearby `test/` scripts or build/test commands before inventing a new validation path.
+- When compiling with a local OpenHSP tree, `hspcmp` may need `--compath=<OpenHSP-root>/common/` even for standard HSP3 scripts so that headers such as `hspdef.as` resolve. In user-facing docs, avoid machine-specific absolute paths; show examples with a placeholder or environment variable such as `$OPENHSP_ROOT/hspcmp --compath=$OPENHSP_ROOT/common/ ...`.
+- Treat `hspcmp` warnings, especially uninitialized-variable warnings, as useful quality signals for examples. HSP permits implicit variables, but runnable samples should explicitly initialize input state, color/output variables, arrays, and values that are assigned by subroutines when practical.
 - For syntax-only changes, compare against nearby examples using the same runtime and include files.
 - For interactive programs, compile success is not enough: manually or programmatically check the main input paths, boundary actions, game-over/restart paths, and any array-index-heavy code.
 - Clean up compiler/runtime artifacts such as `.ax`, `obj`, or `hsptmp` unless the user asked to keep generated files.

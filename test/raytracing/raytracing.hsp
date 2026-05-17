@@ -1,0 +1,297 @@
+; CPU ray tracing demo for standard HSP3
+; R: redraw / Space: toggle animation / Esc: quit
+
+#const SCREEN_W 640
+#const SCREEN_H 480
+#const TRACE_W 128
+#const TRACE_H 88
+#const SCALE 5
+#const VIEW_X 0
+#const VIEW_Y 24
+
+screen 0, SCREEN_W, SCREEN_H
+title "HSP Ray Tracing Demo"
+font "Arial", 16
+randomize
+
+dim sphR, 3
+dim sphG, 3
+dim sphB, 3
+ddim sphX, 3
+ddim sphY, 3
+ddim sphZ, 3
+ddim sphRad, 3
+ddim sphRefl, 3
+
+sphX(0) = -1.25 : sphY(0) = 0.15 : sphZ(0) = 3.9 : sphRad(0) = 0.9 : sphR(0) = 230 : sphG(0) = 70 : sphB(0) = 55 : sphRefl(0) = 0.45
+sphX(1) = 1.15 : sphY(1) = 0.05 : sphZ(1) = 4.6 : sphRad(1) = 1.0 : sphR(1) = 60 : sphG(1) = 140 : sphB(1) = 235 : sphRefl(1) = 0.35
+sphX(2) = 0.0 : sphY(2) = -0.35 : sphZ(2) = 2.85 : sphRad(2) = 0.45 : sphR(2) = 245 : sphG(2) = 210 : sphB(2) = 80 : sphRefl(2) = 0.25
+
+camX = 0.0
+camY = 0.45
+camZ = -2.6
+lightX = -3.5
+lightY = -4.2
+lightZ = -2.2
+autoSpin = 1
+frame = 0
+row = 0
+key = 0
+keyR = 0
+colR = 0 : colG = 0 : colB = 0
+surfR = 0 : surfG = 0 : surfB = 0
+hitX = 0.0 : hitY = 0.0 : hitZ = 0.0
+hitNx = 0.0 : hitNy = 0.0 : hitNz = 0.0
+lightAmt = 0.0
+
+gosub *clear_scene
+
+*main
+stick key, 16
+if key & 128 : end
+if key & 16 {
+	autoSpin = 1 - autoSpin
+	await 120
+}
+getkey keyR, 'R'
+if keyR {
+	row = 0
+	gosub *clear_scene
+	await 120
+}
+
+if autoSpin {
+	angle = 0.018 * frame
+	sphX(2) = sin(angle) * 1.65
+	sphZ(2) = 3.25 + cos(angle) * 0.85
+	frame = frame + 1
+}
+
+redraw 0
+repeat 8
+	if row < TRACE_H {
+		py = row
+		gosub *render_row
+		row = row + 1
+	} else {
+		if autoSpin {
+			row = 0
+			gosub *clear_scene
+		}
+		break
+	}
+loop
+gosub *draw_status
+redraw 1
+
+await 1
+goto *main
+
+*clear_scene
+color 12, 16, 23
+boxf
+color 26, 32, 43
+boxf VIEW_X, VIEW_Y, TRACE_W * SCALE - 1, VIEW_Y + TRACE_H * SCALE - 1
+row = 0
+return
+
+*render_row
+screenY = (double(py) / double(TRACE_H - 1)) * 2.0 - 1.0
+repeat TRACE_W
+	px = cnt
+	screenX = (double(px) / double(TRACE_W - 1)) * 2.0 - 1.0
+	rayX = screenX * 1.25
+	rayY = screenY * 0.86
+	rayZ = 1.55
+	gosub *normalize_ray
+
+	originX = camX : originY = camY : originZ = camZ
+	gosub *trace_ray
+
+	color colR, colG, colB
+	dx = VIEW_X + px * SCALE
+	dy = VIEW_Y + py * SCALE
+	boxf dx, dy, dx + SCALE - 1, dy + SCALE - 1
+loop
+return
+
+*trace_ray
+hitKind = 0
+hitId = -1
+hitT = 9999.0
+gosub *find_hit
+
+if hitKind = 0 {
+	; Sky gradient.
+	sky = 0.5 + rayY * 0.5
+	colR = 30 + int(35.0 * sky)
+	colG = 42 + int(50.0 * sky)
+	colB = 62 + int(95.0 * sky)
+	return
+}
+
+baseR = surfR
+baseG = surfG
+baseB = surfB
+surfX = hitX
+surfY = hitY
+surfZ = hitZ
+normalX = hitNx
+normalY = hitNy
+normalZ = hitNz
+
+gosub *shade_point
+shadeR = int(double(baseR) * lightAmt)
+shadeG = int(double(baseG) * lightAmt)
+shadeB = int(double(baseB) * lightAmt)
+
+if hitKind = 1 {
+	; One-bounce reflection.
+	refl = sphRefl(hitId)
+	dotRN = rayX * normalX + rayY * normalY + rayZ * normalZ
+	refX = rayX - 2.0 * dotRN * normalX
+	refY = rayY - 2.0 * dotRN * normalY
+	refZ = rayZ - 2.0 * dotRN * normalZ
+	originX = surfX + normalX * 0.01
+	originY = surfY + normalY * 0.01
+	originZ = surfZ + normalZ * 0.01
+	rayX = refX : rayY = refY : rayZ = refZ
+
+	hitKind = 0
+	hitId = -1
+	hitT = 9999.0
+	gosub *find_hit
+	if hitKind = 0 {
+		refR = 28 : refG = 38 : refB = 64
+	} else {
+		refR = surfR : refG = surfG : refB = surfB
+	}
+	shadeR = int(double(shadeR) * (1.0 - refl) + double(refR) * refl)
+	shadeG = int(double(shadeG) * (1.0 - refl) + double(refG) * refl)
+	shadeB = int(double(shadeB) * (1.0 - refl) + double(refB) * refl)
+}
+
+colR = shadeR : colG = shadeG : colB = shadeB
+gosub *clamp_color
+return
+
+*find_hit
+repeat 3
+	i = cnt
+	ox = originX - sphX(i)
+	oy = originY - sphY(i)
+	oz = originZ - sphZ(i)
+	b = ox * rayX + oy * rayY + oz * rayZ
+	c = ox * ox + oy * oy + oz * oz - sphRad(i) * sphRad(i)
+	d = b * b - c
+	if d > 0.0 {
+		t = -b - sqrt(d)
+		if t > 0.02 & t < hitT {
+			hitT = t
+			hitKind = 1
+			hitId = i
+		}
+	}
+loop
+
+if rayY ! 0.0 {
+	t = (1.15 - originY) / rayY
+	if t > 0.02 & t < hitT {
+		hitT = t
+		hitKind = 2
+		hitId = -1
+	}
+}
+
+if hitKind = 0 : return
+
+hitX = originX + rayX * hitT
+hitY = originY + rayY * hitT
+hitZ = originZ + rayZ * hitT
+
+if hitKind = 1 {
+	hitNx = (hitX - sphX(hitId)) / sphRad(hitId)
+	hitNy = (hitY - sphY(hitId)) / sphRad(hitId)
+	hitNz = (hitZ - sphZ(hitId)) / sphRad(hitId)
+	surfR = sphR(hitId)
+	surfG = sphG(hitId)
+	surfB = sphB(hitId)
+} else {
+	hitNx = 0.0 : hitNy = -1.0 : hitNz = 0.0
+	tile = (int(hitX * 1.5 + 1000.0) + int(hitZ * 1.5 + 1000.0)) \ 2
+	if tile = 0 {
+		surfR = 205 : surfG = 210 : surfB = 200
+	} else {
+		surfR = 90 : surfG = 103 : surfB = 115
+	}
+}
+return
+
+*shade_point
+lx = lightX - surfX
+ly = lightY - surfY
+lz = lightZ - surfZ
+len = sqrt(lx * lx + ly * ly + lz * lz)
+lx = lx / len : ly = ly / len : lz = lz / len
+
+diff = normalX * lx + normalY * ly + normalZ * lz
+if diff < 0.0 : diff = 0.0
+lightAmt = 0.18 + diff * 0.82
+
+shadow = 0
+saveOriginX = originX : saveOriginY = originY : saveOriginZ = originZ
+saveRayX = rayX : saveRayY = rayY : saveRayZ = rayZ
+saveHitKind = hitKind : saveHitId = hitId : saveHitT = hitT
+
+originX = surfX + normalX * 0.02
+originY = surfY + normalY * 0.02
+originZ = surfZ + normalZ * 0.02
+rayX = lx : rayY = ly : rayZ = lz
+lightDist = len
+
+repeat 3
+	i = cnt
+	if i ! saveHitId {
+		ox = originX - sphX(i)
+		oy = originY - sphY(i)
+		oz = originZ - sphZ(i)
+		b = ox * rayX + oy * rayY + oz * rayZ
+		c = ox * ox + oy * oy + oz * oz - sphRad(i) * sphRad(i)
+		d = b * b - c
+		if d > 0.0 {
+			t = -b - sqrt(d)
+			if t > 0.02 & t < lightDist : shadow = 1
+		}
+	}
+loop
+
+if shadow : lightAmt = lightAmt * 0.38
+
+originX = saveOriginX : originY = saveOriginY : originZ = saveOriginZ
+rayX = saveRayX : rayY = saveRayY : rayZ = saveRayZ
+hitKind = saveHitKind : hitId = saveHitId : hitT = saveHitT
+return
+
+*normalize_ray
+len = sqrt(rayX * rayX + rayY * rayY + rayZ * rayZ)
+rayX = rayX / len
+rayY = rayY / len
+rayZ = rayZ / len
+return
+
+*clamp_color
+if colR < 0 : colR = 0
+if colG < 0 : colG = 0
+if colB < 0 : colB = 0
+if colR > 255 : colR = 255
+if colG > 255 : colG = 255
+if colB > 255 : colB = 255
+return
+
+*draw_status
+color 12, 16, 23
+boxf 0, 0, SCREEN_W, 23
+color 230, 236, 244
+pos 12, 4
+mes "HSP CPU Ray Tracing  row " + row + "/" + TRACE_H + "   Space: auto " + autoSpin + "   R: redraw   Esc: quit"
+return

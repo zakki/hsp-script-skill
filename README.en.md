@@ -53,6 +53,7 @@ Create a touch input sample for OpenHSP sample/hsp3dish.
 
 ## Files
 
+- `AGENTS.md`: Development policy for agents updating this skill repository.
 - `skills/SKILL.md`: Codex-facing skill instructions and trigger description.
 - `skills/references/hsp-notes.md`: HSP syntax notes, examples, runtime guidance, and OpenHSP repository hints.
 - `skills/agents/openai.yaml`: UI metadata for skill lists.

@@ -53,6 +53,7 @@ OpenHSPのsample/hsp3dish向けにタッチ入力のサンプルを作って
 
 ## ファイル構成
 
+- `AGENTS.md`: このskill自体を開発・更新するエージェント向けの方針。
 - `skills/SKILL.md`: Codex向けのskill定義と発火条件。
 - `skills/references/hsp-notes.md`: HSPの構文メモ、コード例、ランタイム別の注意点、OpenHSPリポジトリの配置メモ。
 - `skills/agents/openai.yaml`: skill一覧表示などで使うUIメタデータ。
