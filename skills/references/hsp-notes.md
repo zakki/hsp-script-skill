@@ -17,7 +17,7 @@ Use the official Windows HSP 3.7 package as the main assumption for user-facing 
 - `hsphelp/`: help source/index files used by the editor/help system.
 - DLLs in the package root provide Windows plugin functionality; include matching `.as` files from `common/` when using them.
 
-Mention Linux+OpenHSP as a source-tree/development variant, not the default end-user layout. In the OpenHSP repository, equivalent materials are split across `sample/`, `sample_ref/`, `sample_ref_pp/`, `common/`, `hsphelp/`, `hsphelp_en/`, `doclib/`, `doclib_en/`, `src/`, `test/`, and `build/`.
+Mention Linux+OpenHSP as a source-tree/development variant, not the default end-user layout. In the OpenHSP repository, equivalent materials are split across `sample/`, `common/`, `hsphelp/`, `hsphelp_en/`, `doclib/`, `doclib_en/`, `src/`, `test/`, and `build/`.
 
 ## Runtime Selection
 
@@ -334,11 +334,10 @@ Encoding varies by source. OpenHSP repository files are often UTF-8, while Windo
 
 ## Linux+OpenHSP Source Tree Notes
 
-- General samples live under `sample/`, with reference/preprocessed variants under `sample_ref/` and `sample_ref_pp/`.
+- General samples live under `sample/`.
 - Shared headers/modules live under `common/`.
 - Help source files live under `hsphelp/` and `hsphelp_en/`.
 - HSP3Dish and Emscripten assets also appear under `src/hspcmp/emscripten/assets/`.
-- Compiler/runtime comparison fixtures live under `test/test_chsp_compare/gen/`; keep generated-test style consistent when editing there.
 
 ## Validation
 
