@@ -1,0 +1,9 @@
+# HSP/OpenHSP compiler outputs
+*.ax
+obj
+hsptmp
+
+# Local editor and OS noise
+.DS_Store
+Thumbs.db
+*~
